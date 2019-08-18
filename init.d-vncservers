@@ -1,0 +1,105 @@
+#!/bin/bash
+### BEGIN INIT INFO
+# Provides:
+# Required-Start:
+# Required-Stop:
+# Default-Start:5
+# Default-Stop:0 1 2 3 4 6
+# Short-Description: runs vnc servers
+### END INIT INFO
+PATH=/sbin:/bin:/usr/bin
+
+. /lib/lsb/init-functions
+
+. /etc/vncservers
+
+start_vnc_servers()
+{
+    	echo "Starting ..."
+
+    	for server in $VNCSERVERS
+    	do
+            	set -- `echo $server | /usr/bin/tr ':' ' '`
+            	display=$1
+            	usern=$2
+
+            	echo "vncserver $server"
+            	echo "$usern \"vncserver :$display ${VNCSERVERARGS[$display]}\""
+            	su $usern -c "vncserver :$display ${VNCSERVERARGS[$display]}"
+    	done
+}
+start_vnc_servers1()
+{
+
+    	echo "Starting ..."
+    	for (( serverN=0; serverN<$MULTICOUNT; serverN++ ))
+    	do
+            	display=$serverN
+            	usern=$MULTIUSER
+
+            	echo "vncserver $serverN"
+            	echo "$usern \"vncserver :$display $MULTIARGS\""
+            	#su $usern -c "vncserver :$display $MULTIARGS"
+            	nohup /usr/bin/Xvfb :$display -screen $display $RESOLUTION -ac +extension GLX +render -noreset > /dev/null 2>&1 &
+            	nohup x11vnc -xkb -noxrecord -noxfixes -noxdamage -display :$display -forever -bg -rfbauth /home/alpine/.vnc/passwd -users alpine  > /dev/null 2>&1 &
+
+    	done
+}
+
+stop_vnc_servers1()
+{
+    	echo "killing ..."
+
+    	for (( serverN=0; serverN<$MULTICOUNT; serverN++ ))
+    	do
+            	display=$serverN
+            	usern=$MULTIUSER
+
+            	export HOME=/home/$usern
+
+            	echo "vncserver $serverN"
+            	echo "vncserver -kill $display"
+            	vncserver -kill :$display
+    	done
+}
+
+
+stop_vnc_servers()
+{
+    	echo "killing ..."
+
+    	for server in $VNCSERVERS
+    	do
+            	set -- `echo $server | /usr/bin/tr ':' ' '`
+            	display=$1
+            	usern=$2
+
+            	export HOME=/home/$2
+
+            	echo "vncserver $server"
+            	echo "vncserver -kill $display"
+            	vncserver -kill :$display
+    	done
+}
+
+case "$1" in
+  start)
+    	start_vnc_servers1
+    	exit 0
+    	;;
+  restart)
+    	stop_vnc_servers1
+    	start_vnc_servers1
+    	exit 0
+    	;;
+  stop)
+    	stop_vnc_servers1
+    	exit 0
+    	;;
+  *)
+   	echo "Usage: $0 start|stop" >&2
+    	exit 1
+    	;;
+esac
+
+
