@@ -1,32 +1,13 @@
-# alpine-xfce4
 
-Simple and minimal Docker image providing Xfce4 Desktop and VNC server.
+Docker image providing Xvfb display and X11vnc server.
 
-#### Configuration
 
-To set up remote X framebuffer display resolution open `Dockerfile` and edit 
 
-```sh
-ENV RESOLUTION 1920x1080x24
-```
+1. build the image:
+$docker build -t docker-xvfb-multi-displays-chromium
+2. build your image based on this image.
+3. run you image by: 
+$ docker run -d -p 8090:8090 -p 5900-5910:5900-5910 your-image:latest
 
-#### Build Image
+you can view the enterior displays with vnc clinet, on 127.0.0.1:5900-5901 password=alpine
 
-```sh
-git clone https://github.com/jkuri/alpine-xfce4.git
-docker build -t alpine-xfce4 alpine-xfce4/
-```
-
-#### Run Image
-
-```sh
-docker run -it -p 5900:5900 --rm alpine-xfce4
-```
-
-#### Connect With VNC
-
-Use `vncviewer` or similar software to connect to container. Predefined password is `alpine`.
-
-#### LICENCE
-
-MIT
