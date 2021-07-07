@@ -29,7 +29,7 @@ echo "Starting X11vnc..."
             	echo "$usern \"vncserver :$display $MULTIARGS\""
             	#su $usern -c "vncserver :$display $MULTIARGS"
 
-            	nohup x11vnc -xkb -noxrecord -noxfixes -noxdamage -display :$display -forever -bg -rfbauth /home/alpine/.vnc/passwd -users alpine &
+            	nohup x11vnc -xkb -noxrecord -noxfixes -noxdamage -display :$display -forever -bg -rfbauth /home/alpine/.vnc/passwd  &
 
     	done
 
